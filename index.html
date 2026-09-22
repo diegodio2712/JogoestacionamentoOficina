@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Estacionamento - Rush Hour</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tone.js for Sound Effects -->
@@ -15,17 +16,16 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            red: '#ef4444',
-                            yellow: '#eab308',
-                            blue: '#0284c7',
-                            dark: '#0f172a'
+                        slate: {
+                            850: '#131f37',
+                            950: '#090d16',
                         }
                     }
                 }
@@ -34,12 +34,13 @@
     </script>
 
     <style>
-        /* Custom Styles for Board, Animations, and Vehicles */
         body {
-            background-color: #0f172a;
+            background-color: #090d16;
             color: #f8fafc;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Inter', sans-serif;
         }
 
         .board-grid {
@@ -49,12 +50,13 @@
             position: relative;
             background-color: #1e293b;
             border: 4px solid #334155;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             aspect-ratio: 1 / 1;
+            border-radius: 1.25rem;
         }
 
         .grid-cell {
-            border: 1px dashed #334155;
+            border: 1px dashed rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -65,73 +67,77 @@
 
         .exit-arrow {
             position: absolute;
-            right: -24px;
+            right: -26px;
             top: 33.333%;
             height: 16.666%;
-            width: 24px;
+            width: 26px;
             background: #22c55e;
             clip-path: polygon(0% 20%, 50% 20%, 50% 0%, 100% 50%, 50% 100%, 50% 80%, 0% 80%);
             animation: pulse-exit 1.5s infinite alternate;
+            z-index: 5;
+            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8));
         }
 
         @keyframes pulse-exit {
-            0% { transform: scale(0.9); opacity: 0.7; }
-            100% { transform: scale(1.1); opacity: 1; }
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 14px rgba(34, 197, 94, 1)); }
         }
 
-        /* Vehicle styling */
+        /* Vehicle styling with realistic details */
         .vehicle {
             position: absolute;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.12s ease-out;
             cursor: pointer;
             touch-action: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.2);
+            font-weight: 900;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 15px -3px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.25);
             z-index: 10;
         }
 
         .vehicle.selected {
-            ring: 4px;
             outline: 3px solid #60a5fa;
+            outline-offset: 2px;
             z-index: 20;
+            box-shadow: 0 12px 20px -3px rgba(96, 165, 250, 0.4);
         }
 
         /* Red Car X */
         .vehicle-X {
-            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 60%, #991b1b 100%);
             color: white;
             border: 2px solid #fca5a5;
         }
 
         /* Yellow Cars */
         .vehicle-car {
-            background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
-            color: #1e293b;
+            background: linear-gradient(135deg, #fde047 0%, #eab308 60%, #a16207 100%);
+            color: #0f172a;
             border: 2px solid #fef08a;
         }
 
         /* Blue Trucks */
         .vehicle-truck {
-            background: linear-gradient(135deg, #38bdf8 0%, #0369a1 100%);
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 60%, #075985 100%);
             color: white;
             border: 2px solid #bae6fd;
         }
 
         /* Glassmorphism modal */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         /* Custom Scrollbars */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #0f172a;
@@ -142,116 +148,116 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans antialiased text-slate-100">
+<body class="min-h-screen flex flex-col font-sans antialiased text-slate-100 selection:bg-red-500 selection:text-white">
 
     <!-- Navigation Bar -->
-    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-30">
+    <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 sticky top-0 z-30 shadow-md">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('game')">
-                <div class="bg-red-600 text-white p-2 rounded-xl shadow-lg flex items-center justify-center font-black text-xl w-10 h-10">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchTab('game')">
+                <div class="bg-gradient-to-tr from-red-600 to-red-500 text-white p-2 rounded-xl shadow-lg flex items-center justify-center font-black text-xl w-10 h-10 group-hover:scale-105 transition">
                     X
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                    <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
                         Estacionamento
-                        <span class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-semibold">Rush Hour</span>
+                        <span class="text-[10px] sm:text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Rush Hour</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Pensamento Computacional para Todos</p>
+                    <p class="text-[11px] text-slate-400 hidden sm:block">Pensamento Computacional & Logística</p>
                 </div>
             </div>
 
             <!-- Tab Buttons -->
             <nav class="flex items-center space-x-1 sm:space-x-2">
-                <button id="nav-levels" onclick="switchTab('levels')" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                <button id="nav-levels" onclick="switchTab('levels')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-list-check text-yellow-400"></i>
                     <span class="hidden sm:inline">Níveis</span>
                 </button>
-                <button id="nav-game" onclick="switchTab('game')" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                <button id="nav-game" onclick="switchTab('game')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-gamepad text-red-400"></i>
                     <span class="hidden sm:inline">Jogar</span>
                 </button>
-                <button id="nav-editor" onclick="switchTab('editor')" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
+                <button id="nav-editor" onclick="switchTab('editor')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5">
                     <i class="fa-solid fa-pen-ruler text-sky-400"></i>
                     <span class="hidden sm:inline">Editor</span>
                 </button>
-                <button onclick="openRulesModal()" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-circle-question text-lg"></i>
+                <button onclick="toggleAudio()" id="btn-audio" class="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Alternar Som">
+                    <i id="icon-audio" class="fa-solid fa-volume-high text-slate-300"></i>
+                </button>
+                <button onclick="openRulesModal()" class="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="Como Jogar">
+                    <i class="fa-solid fa-circle-question text-slate-300"></i>
                 </button>
             </nav>
         </div>
     </header>
 
-    <!-- Custom Level Banner Alert -->
-    <div id="custom-level-banner" class="hidden bg-sky-900/90 border-b border-sky-600 px-4 py-2.5 text-center text-sky-100 text-sm flex items-center justify-center gap-3">
-        <span><i class="fa-solid fa-link text-sky-300 mr-1"></i> Você abriu uma <strong>Fase Personalizada Compartilhada</strong>!</span>
-        <button onclick="dismissBanner()" class="bg-sky-700 hover:bg-sky-600 text-white px-2.5 py-1 rounded text-xs font-bold transition">OK</button>
+    <!-- Custom Level Shared Banner Alert -->
+    <div id="custom-level-banner" class="hidden bg-gradient-to-r from-sky-900 to-blue-900 border-b border-sky-500 px-4 py-2.5 text-center text-sky-100 text-xs sm:text-sm flex items-center justify-center gap-3 animate-fade-in">
+        <span><i class="fa-solid fa-link text-sky-300 mr-1.5"></i> Você abriu uma <strong>Fase Personalizada Compartilhada</strong>!</span>
+        <button onclick="dismissBanner()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 px-3 py-1 rounded-lg text-xs font-bold transition shadow">Entendido</button>
     </div>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col justify-center">
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col justify-center items-center">
 
         <!-- ==================== VIEW 1: GAME VIEW ==================== -->
-        <section id="view-game" class="w-full flex flex-col items-center">
+        <section id="view-game" class="w-full flex flex-col items-center max-w-lg">
             
-            <!-- Level Info Header -->
-            <div class="w-full max-w-lg mb-4 flex items-center justify-between bg-slate-800/80 border border-slate-700 p-3.5 rounded-2xl shadow-md">
+            <!-- Level Info Header Card -->
+            <div class="w-full mb-3 flex items-center justify-between bg-slate-900/80 border border-slate-800 p-3.5 rounded-2xl shadow-xl">
                 <div>
-                    <span id="level-badge" class="text-xs font-bold uppercase tracking-wider text-yellow-400 bg-yellow-400/10 px-2.5 py-1 rounded-full border border-yellow-400/20">
+                    <span id="level-badge" class="text-[10px] font-extrabold uppercase tracking-wider text-yellow-400 bg-yellow-400/10 px-2.5 py-1 rounded-full border border-yellow-400/20">
                         Nível 1 - Iniciante
                     </span>
-                    <h2 id="level-title" class="text-lg font-bold text-white mt-1">Desafio 1</h2>
+                    <h2 id="level-title" class="text-base sm:text-lg font-black text-white mt-1">Desafio 1</h2>
                 </div>
 
                 <!-- Stats -->
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
                     <div class="text-right">
-                        <div class="text-xs text-slate-400 font-medium">Movimentos</div>
-                        <div id="move-counter" class="text-2xl font-black text-white">0</div>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Movimentos</div>
+                        <div id="move-counter" class="text-xl sm:text-2xl font-black text-white leading-none">0</div>
                     </div>
-                    <div class="text-right border-l border-slate-700 pl-4">
-                        <div class="text-xs text-slate-400 font-medium">Melhor</div>
-                        <div id="best-moves" class="text-2xl font-black text-yellow-400">--</div>
+                    <div class="text-right border-l border-slate-800 pl-3">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">Melhor</div>
+                        <div id="best-moves" class="text-xl sm:text-2xl font-black text-yellow-400 leading-none">--</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Game Board Area -->
-            <div class="relative w-full max-w-md my-2">
-                <!-- Board Outer Border Container -->
-                <div class="relative p-2 bg-slate-800 rounded-3xl shadow-2xl border-2 border-slate-700">
-                    <div id="game-board" class="board-grid rounded-2xl overflow-visible">
-                        <!-- Exit Arrow Graphic -->
-                        <div class="exit-arrow" title="Saída do Estacionamento"></div>
-                        
-                        <!-- 36 Grid background cells generated via JS -->
+            <!-- Game Board Container -->
+            <div class="relative w-full my-1">
+                <div class="relative p-2.5 bg-slate-900/90 rounded-3xl shadow-2xl border-2 border-slate-800">
+                    <div id="game-board" class="board-grid">
+                        <div class="exit-arrow" title="Saída do Estacionamento (Linha 3)"></div>
+                        <!-- Grid cells and vehicles rendered via JavaScript -->
                     </div>
                 </div>
             </div>
 
             <!-- Controls Toolbar -->
-            <div class="w-full max-w-md mt-4 flex items-center justify-between gap-2">
-                <button onclick="resetCurrentLevel()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 active:scale-95">
+            <div class="w-full mt-3 grid grid-cols-3 gap-2">
+                <button onclick="resetCurrentLevel()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 shadow">
                     <i class="fa-solid fa-rotate-left text-red-400"></i> Reiniciar
                 </button>
-                <button onclick="getHint()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 active:scale-95">
+                <button onclick="getHint()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 shadow">
                     <i class="fa-solid fa-lightbulb text-yellow-400"></i> Dica
                 </button>
-                <button onclick="switchTab('levels')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 active:scale-95">
+                <button onclick="switchTab('levels')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 shadow">
                     <i class="fa-solid fa-grip text-sky-400"></i> Fases
                 </button>
             </div>
 
-            <!-- Selected Vehicle Controller (Mobile / Touch friendly directional buttons) -->
-            <div id="directional-controls" class="w-full max-w-md mt-4 bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3 flex items-center justify-between">
-                <div class="text-xs text-slate-400 flex items-center gap-2">
+            <!-- Directional Controller for Mobile Touch -->
+            <div id="directional-controls" class="w-full mt-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex items-center justify-between shadow-lg">
+                <div class="text-xs text-slate-400 flex items-center gap-2 truncate pr-2">
                     <i class="fa-solid fa-hand-pointer text-slate-500"></i>
-                    <span id="selected-vehicle-label">Toque em um veículo para mover</span>
+                    <span id="selected-vehicle-label" class="truncate font-medium">Toque em um carro para selecionar</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button id="btn-move-prev" onclick="moveSelectedVehicle(-1)" disabled class="w-10 h-10 bg-slate-700 disabled:opacity-40 hover:bg-slate-600 rounded-xl font-bold text-white transition flex items-center justify-center active:scale-90">
+                <div class="flex items-center space-x-2 shrink-0">
+                    <button id="btn-move-prev" onclick="moveSelectedVehicle(-1)" disabled class="w-10 h-10 bg-slate-800 border border-slate-700 disabled:opacity-30 hover:bg-slate-700 rounded-xl font-bold text-white transition flex items-center justify-center active:scale-90">
                         <i id="icon-prev" class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <button id="btn-move-next" onclick="moveSelectedVehicle(1)" disabled class="w-10 h-10 bg-slate-700 disabled:opacity-40 hover:bg-slate-600 rounded-xl font-bold text-white transition flex items-center justify-center active:scale-90">
+                    <button id="btn-move-next" onclick="moveSelectedVehicle(1)" disabled class="w-10 h-10 bg-slate-800 border border-slate-700 disabled:opacity-30 hover:bg-slate-700 rounded-xl font-bold text-white transition flex items-center justify-center active:scale-90">
                         <i id="icon-next" class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
@@ -260,19 +266,21 @@
 
         <!-- ==================== VIEW 2: LEVEL SELECTION MENU ==================== -->
         <section id="view-levels" class="hidden w-full max-w-4xl mx-auto">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h2 class="text-2xl font-black text-white tracking-tight">Selecione o Estacionamento</h2>
-                    <p class="text-sm text-slate-400">Desbloqueie novas fases completando as anteriores.</p>
+                    <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+                        <i class="fa-solid fa-square-parking text-yellow-400"></i> Selecione a Fase
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Sua pontuação e menor número de movimentos são gravados automaticamente.</p>
                 </div>
-                <div id="completion-stats" class="text-xs bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl font-bold text-yellow-400">
+                <div id="completion-stats" class="self-start sm:self-auto text-xs bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl font-bold text-yellow-400 shadow">
                     Progresso: 0 / 20
                 </div>
             </div>
 
-            <!-- Tab Filter for Levels -->
+            <!-- Filter Tabs -->
             <div class="flex space-x-2 mb-6 border-b border-slate-800 pb-3">
-                <button id="filter-all" onclick="renderLevelMenu('all')" class="px-4 py-2 rounded-xl text-xs font-bold bg-yellow-500 text-slate-950 transition">
+                <button id="filter-all" onclick="renderLevelMenu('all')" class="px-4 py-2 rounded-xl text-xs font-bold bg-yellow-500 text-slate-950 transition shadow">
                     Todos os Níveis
                 </button>
                 <button id="filter-iniciante" onclick="renderLevelMenu('Iniciante')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
@@ -283,9 +291,9 @@
                 </button>
             </div>
 
-            <!-- Grid of Levels -->
+            <!-- Grid of Level Cards -->
             <div id="levels-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <!-- Dynamic Level Cards generated via JS -->
+                <!-- Dynamically generated via JS -->
             </div>
         </section>
 
@@ -293,102 +301,105 @@
         <section id="view-editor" class="hidden w-full max-w-5xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Left: Editor Board -->
+                <!-- Left Column: Interactive Editor Grid -->
                 <div class="lg:col-span-7 flex flex-col items-center">
                     <div class="w-full flex items-center justify-between mb-3">
                         <h2 class="text-xl font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-pen-ruler text-sky-400"></i> Editor de Estacionamento
+                            <i class="fa-solid fa-pen-ruler text-sky-400"></i> Criar Estacionamento
                         </h2>
-                        <button onclick="clearEditorGrid()" class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg font-bold hover:bg-red-500/30 transition">
+                        <button onclick="clearEditorGrid()" class="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-xl font-bold hover:bg-red-500/30 transition">
                             <i class="fa-solid fa-trash-can mr-1"></i> Limpar
                         </button>
                     </div>
 
-                    <div class="relative w-full max-w-md my-2">
-                        <div class="relative p-2 bg-slate-800 rounded-3xl shadow-2xl border-2 border-slate-700">
-                            <div id="editor-board" class="board-grid rounded-2xl overflow-visible">
-                                <div class="exit-arrow" title="Saída do Estacionamento"></div>
+                    <div class="relative w-full max-w-md my-1">
+                        <div class="relative p-2.5 bg-slate-900/90 rounded-3xl shadow-2xl border-2 border-slate-800">
+                            <div id="editor-board" class="board-grid">
+                                <div class="exit-arrow" title="Saída do Estacionamento (Linha 3)"></div>
                             </div>
                         </div>
                     </div>
 
                     <p class="text-xs text-slate-400 text-center mt-2">
-                        Toque em uma célula para colocar o veículo selecionado. Clique em um veículo no tabuleiro para remover ou reposicionar.
+                        Toque numa célula para adicionar o veículo selecionado. Clique em um veículo já posicionado para removê-lo.
                     </p>
                 </div>
 
-                <!-- Right: Tool Palette & Solvability Checker -->
+                <!-- Right Column: Vehicle Palette & Solvability Verifier -->
                 <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
                     
                     <!-- Vehicle Selector Palette -->
-                    <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-4">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider text-slate-300">1. Selecione o Veículo</h3>
+                    <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl space-y-3.5 shadow-xl">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                            <span>1. Selecione Orientação & Veículo</span>
+                            <i class="fa-solid fa-car text-sky-400"></i>
+                        </h3>
                         
-                        <!-- Direction Toggle -->
-                        <div class="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl">
-                            <button id="editor-dir-h" onclick="setEditorDir('h')" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white transition flex items-center justify-center gap-1">
+                        <!-- Direction Selector -->
+                        <div class="flex items-center space-x-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                            <button id="editor-dir-h" onclick="setEditorDir('h')" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white transition flex items-center justify-center gap-1.5 shadow">
                                 <i class="fa-solid fa-arrows-left-right"></i> Horizontal
                             </button>
-                            <button id="editor-dir-v" onclick="setEditorDir('v')" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1">
+                            <button id="editor-dir-v" onclick="setEditorDir('v')" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-arrows-up-down"></i> Vertical
                             </button>
                         </div>
 
-                        <!-- Vehicle Types -->
-                        <div class="space-y-2">
+                        <!-- Vehicle Items -->
+                        <div class="space-y-2.5">
                             <!-- Red Car X -->
                             <div onclick="selectEditorVehicleType('X')" id="palette-X" class="palette-item p-2.5 rounded-xl bg-red-950/60 border-2 border-red-500 cursor-pointer flex items-center justify-between transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-8 h-8 rounded-lg bg-red-600 font-black text-white flex items-center justify-center text-sm shadow">X</div>
                                     <div>
                                         <div class="text-xs font-bold text-white">Carro Principal (X)</div>
-                                        <div class="text-[10px] text-red-300">Obrigatório • Tam: 2</div>
+                                        <div class="text-[10px] text-red-300">Obrigatório • Tamanho 2 • Linha 3</div>
                                     </div>
                                 </div>
-                                <span class="text-xs bg-red-500/30 text-red-300 px-2 py-0.5 rounded font-bold">Vermelho</span>
+                                <span class="text-[10px] bg-red-500/30 text-red-300 px-2 py-0.5 rounded-full font-extrabold uppercase">Vermelho</span>
                             </div>
 
                             <!-- Yellow Cars A-K -->
                             <div>
-                                <label class="text-xs font-bold text-slate-400 mb-1 block">Carros Amarelos (Tamanho 2):</label>
+                                <label class="text-[11px] font-bold text-slate-400 mb-1 block">Carros Amarelos (Tamanho 2):</label>
                                 <div id="palette-cars-grid" class="grid grid-cols-6 gap-1.5">
-                                    <!-- Dynamic yellow car buttons -->
+                                    <!-- Dynamic yellow cars -->
                                 </div>
                             </div>
 
                             <!-- Blue Trucks 1-4 -->
                             <div>
-                                <label class="text-xs font-bold text-slate-400 mb-1 block">Caminhões Azuis (Tamanho 3):</label>
+                                <label class="text-[11px] font-bold text-slate-400 mb-1 block">Caminhões Azuis (Tamanho 3):</label>
                                 <div id="palette-trucks-grid" class="grid grid-cols-4 gap-2">
-                                    <!-- Dynamic blue truck buttons -->
+                                    <!-- Dynamic blue trucks -->
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Solvability & Mathematical BFS Verification Panel -->
-                    <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-2xl space-y-3">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider text-slate-300 flex items-center justify-between">
-                            <span>2. Validação Matemática</span>
+                    <!-- Solvability & BFS Solver Verification Card -->
+                    <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl space-y-3 shadow-xl">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                            <span>2. Verificação Matemática & Teste</span>
                             <i class="fa-solid fa-calculator text-yellow-400"></i>
                         </h3>
 
                         <!-- Status Alert Box -->
-                        <div id="editor-status-box" class="p-3 rounded-xl bg-slate-900/90 border border-slate-700 text-xs space-y-1">
+                        <div id="editor-status-box" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-1">
                             <div id="editor-status-title" class="font-bold text-yellow-400 flex items-center gap-2">
                                 <i class="fa-solid fa-circle-notch fa-spin"></i> Aguardando verificação...
                             </div>
-                            <div id="editor-status-desc" class="text-slate-400">
-                                Posicione o Carro Vermelho (X) na linha da saída (Linha 3).
+                            <div id="editor-status-desc" class="text-slate-400 text-[11px] leading-relaxed">
+                                Posicione o Carro Vermelho (X) na Linha 3 (linha do portão de saída).
                             </div>
                         </div>
 
                         <!-- Verification Actions -->
                         <div class="flex flex-col gap-2 pt-1">
-                            <button id="btn-test-custom" onclick="testCustomLevel()" disabled class="w-full bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-lg">
-                                <i class="fa-solid fa-play"></i> Testar Solução no Jogo
+                            <button id="btn-test-custom" onclick="testCustomLevel()" disabled class="w-full bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg">
+                                <i class="fa-solid fa-gamepad"></i> Testar e Resolver no Jogo
                             </button>
-                            <button id="btn-share-custom" onclick="generateShareLink()" disabled class="w-full bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:hover:bg-sky-600 text-white font-bold py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2 shadow">
+                            <button id="btn-share-custom" onclick="generateShareLink()" disabled class="w-full bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:hover:bg-sky-600 text-white font-bold py-2.5 rounded-xl transition text-xs sm:text-sm flex items-center justify-center gap-2 shadow">
                                 <i class="fa-solid fa-share-nodes"></i> Gerar Link de Compartilhamento
                             </button>
                         </div>
@@ -403,34 +414,58 @@
     <!-- ==================== MODALS ==================== -->
 
     <!-- Victory Modal -->
-    <div id="modal-victory" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel max-w-md w-full p-6 rounded-3xl shadow-2xl text-center space-y-5 border border-yellow-500/30 animate-bounce-short">
+    <div id="modal-victory" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full p-6 rounded-3xl shadow-2xl text-center space-y-5 border border-yellow-500/30">
             <div class="w-20 h-20 bg-yellow-500/20 border-2 border-yellow-400 rounded-full flex items-center justify-center mx-auto text-yellow-400 text-4xl shadow-inner">
                 <i class="fa-solid fa-trophy"></i>
             </div>
 
             <div>
                 <h3 class="text-2xl font-black text-white">Parabéns! Você Venceu!</h3>
-                <p id="victory-subtitle" class="text-sm text-slate-300 mt-1">Você conseguiu tirar o carro vermelho do estacionamento!</p>
+                <p id="victory-subtitle" class="text-xs sm:text-sm text-slate-300 mt-1">Você conseguiu liberar a passagem para o carro vermelho!</p>
             </div>
 
-            <div class="bg-slate-900/80 p-4 rounded-2xl grid grid-cols-2 gap-4 border border-slate-800">
+            <div class="bg-slate-950 p-4 rounded-2xl grid grid-cols-2 gap-4 border border-slate-800">
                 <div>
-                    <div class="text-xs text-slate-400">Movimentos</div>
-                    <div id="victory-moves" class="text-3xl font-black text-white">12</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase">Movimentos Realizados</div>
+                    <div id="victory-moves" class="text-3xl font-black text-white mt-0.5">12</div>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-400">Mínimo Teórico</div>
-                    <div id="victory-min-moves" class="text-3xl font-black text-yellow-400">12</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase">Mínimo Teórico (BFS)</div>
+                    <div id="victory-min-moves" class="text-3xl font-black text-yellow-400 mt-0.5">12</div>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-3">
-                <button onclick="closeVictoryModal(); switchTab('levels')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-xl font-bold transition text-sm border border-slate-700">
-                    Menu
+            <div class="flex items-center space-x-3 pt-1">
+                <button onclick="closeVictoryModal(); switchTab('levels')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-xl font-bold transition text-xs sm:text-sm border border-slate-700">
+                    Menu Fases
                 </button>
-                <button id="btn-next-level" onclick="nextLevel()" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-950 py-3 rounded-xl font-black transition text-sm shadow-lg">
+                <button id="btn-next-level" onclick="nextLevel()" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-950 py-3 rounded-xl font-black transition text-xs sm:text-sm shadow-lg">
                     Próxima Fase <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hint Modal -->
+    <div id="modal-hint" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full p-5 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-yellow-400"></i> Dica do Solucionador
+                </h3>
+                <button onclick="closeHintModal()" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="hint-content-box" class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs text-slate-200 leading-relaxed">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="text-right">
+                <button onclick="closeHintModal()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black px-4 py-2 rounded-xl text-xs transition">
+                    Entendido
                 </button>
             </div>
         </div>
@@ -440,8 +475,8 @@
     <div id="modal-share" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-md w-full p-6 rounded-3xl shadow-2xl space-y-4 border border-sky-500/30">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-link text-sky-400"></i> Link da Fase Criada
+                <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-link text-sky-400"></i> Link da Fase Personalizada
                 </h3>
                 <button onclick="closeShareModal()" class="text-slate-400 hover:text-white text-lg">
                     <i class="fa-solid fa-xmark"></i>
@@ -449,17 +484,17 @@
             </div>
 
             <p class="text-xs text-slate-300">
-                Copie o link abaixo e envie para quem quiser! Qualquer pessoa que abrir esse link jogará automaticamente a sua fase personalizada.
+                Copie o link abaixo e envie para quem quiser! Quem abrir este link carregará a sua fase automaticamente.
             </p>
 
             <div class="relative">
-                <input id="share-url-input" readonly type="text" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-sky-300 font-mono focus:outline-none pr-24">
+                <input id="share-url-input" readonly type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-sky-300 font-mono focus:outline-none pr-24">
                 <button onclick="copyShareUrl()" class="absolute right-1 top-1 bottom-1 bg-sky-600 hover:bg-sky-500 text-white px-3 rounded-lg text-xs font-bold transition">
                     Copiar
                 </button>
             </div>
 
-            <div id="copy-toast" class="hidden text-center text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 py-1.5 rounded-lg">
+            <div id="copy-toast" class="hidden text-center text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 py-2 rounded-xl">
                 <i class="fa-solid fa-check mr-1"></i> Link copiado para a área de transferência!
             </div>
 
@@ -471,11 +506,11 @@
         </div>
     </div>
 
-    <!-- Rules / Help Modal -->
+    <!-- Rules Modal -->
     <div id="modal-rules" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-lg w-full p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
             <div class="flex items-center justify-between">
-                <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
                     <i class="fa-solid fa-circle-question text-yellow-400"></i> Como Jogar
                 </h3>
                 <button onclick="closeRulesModal()" class="text-slate-400 hover:text-white text-lg">
@@ -485,24 +520,24 @@
 
             <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
                 <p>
-                    <strong>Objetivo:</strong> Manobrar os veículos até liberar a passagem para o <strong>Carro Vermelho (X)</strong> sair pelo portão à direita da 3ª linha do estacionamento.
+                    <strong>Objetivo:</strong> Deslizar os veículos até abrir um caminho livre para o <strong>Carro Vermelho (X)</strong> sair pelo portão à direita na 3ª linha do estacionamento.
                 </p>
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <div class="flex items-start gap-2">
-                        <i class="fa-solid fa-arrow-right-arrow-left text-sky-400 mt-0.5"></i>
-                        <span>Veículos horizontais só podem deslizar para a <strong>esquerda e direita</strong>.</span>
+                <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-arrows-left-right text-sky-400 mt-0.5"></i>
+                        <span>Veículos horizontais só deslizam para a <strong>esquerda e direita</strong>.</span>
                     </div>
-                    <div class="flex items-start gap-2">
-                        <i class="fa-solid fa-arrow-up-arrow-down text-sky-400 mt-0.5"></i>
-                        <span>Veículos verticais só podem deslizar para <strong>cima e para baixo</strong>.</span>
+                    <div class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-arrows-up-down text-sky-400 mt-0.5"></i>
+                        <span>Veículos verticais só deslizam para <strong>cima e para baixo</strong>.</span>
                     </div>
-                    <div class="flex items-start gap-2">
+                    <div class="flex items-start gap-2.5">
                         <i class="fa-solid fa-ban text-red-400 mt-0.5"></i>
-                        <span>Nenhum carro pode passar por cima de outro nem sair dos limites do tabuleiro.</span>
+                        <span>Nenhum veículo pode ultrapassar outro ou sair das bordas do tabuleiro.</span>
                     </div>
                 </div>
                 <p>
-                    <strong>Editor de Fases:</strong> Monte seu próprio desafio e nosso algoritmo testará matematicamente se a fase possui solução antes de gerar um link de compartilhamento!
+                    <strong>Editor de Fases:</strong> Crie seus próprios desafios! Nosso algoritmo faz a verificação matemática por BFS para garantir que o nível é solucionável antes de gerar o link compartilhável.
                 </p>
             </div>
 
@@ -516,7 +551,7 @@
 
     <!-- ==================== JAVASCRIPT GAME ENGINE ==================== -->
     <script>
-        // Official Levels dataset extracted from 03-Desafios.pdf
+        // Official Levels Dataset (20 Challenges)
         const OFFICIAL_LEVELS = [
             {
                 id: 1,
@@ -867,7 +902,7 @@
         ];
 
         // Global State Variables
-        let currentLevelIndex = 0; // 0-indexed in OFFICIAL_LEVELS
+        let currentLevelIndex = 0;
         let currentVehicles = [];
         let selectedVehicleId = null;
         let moveCount = 0;
@@ -876,11 +911,11 @@
 
         // Editor state
         let editorVehicles = [];
-        let editorSelectedType = 'X'; // 'X', 'A'-'K', '1'-'4'
-        let editorDir = 'h'; // 'h' or 'v'
+        let editorSelectedType = 'X';
+        let editorDir = 'h';
 
-        // Audio Engine (Tone.js)
-        let soundEnabled = true;
+        // Sound Engine
+        let audioMuted = false;
         let synth = null;
 
         function initAudio() {
@@ -888,7 +923,7 @@
                 try {
                     synth = new Tone.PolySynth(Tone.Synth, {
                         oscillator: { type: "triangle" },
-                        envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
+                        envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.1 }
                     }).toDestination();
                     synth.volume.value = -12;
                 } catch (e) {
@@ -898,7 +933,7 @@
         }
 
         function playSound(type) {
-            if (!soundEnabled || !synth) return;
+            if (audioMuted || !synth) return;
             try {
                 if (Tone.context.state !== 'running') {
                     Tone.start();
@@ -919,10 +954,21 @@
             } catch (e) {}
         }
 
-        // LocalStorage Helpers
+        function toggleAudio() {
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('icon-audio');
+            if (audioMuted) {
+                icon.className = "fa-solid fa-volume-xmark text-red-400";
+            } else {
+                icon.className = "fa-solid fa-volume-high text-slate-300";
+                playSound('select');
+            }
+        }
+
+        // LocalStorage Metrics
         function getUnlockedLevelMax() {
             const saved = localStorage.getItem('estacionamento_unlocked');
-            return saved ? parseInt(saved, 10) : 1; // Default level 1 unlocked
+            return saved ? parseInt(saved, 10) : 1;
         }
 
         function setUnlockedLevelMax(levelNum) {
@@ -971,9 +1017,8 @@
             }
         }
 
-        // Render 36 grid cells for game board
         function createBoardGridCells(boardElem) {
-            boardElem.innerHTML = '<div class="exit-arrow" title="Saída do Estacionamento"></div>';
+            boardElem.innerHTML = '<div class="exit-arrow" title="Saída do Estacionamento (Linha 3)"></div>';
             for (let r = 0; r < 6; r++) {
                 for (let c = 0; c < 6; c++) {
                     const cell = document.createElement('div');
@@ -1022,10 +1067,6 @@
             const boardElem = document.getElementById('game-board');
             createBoardGridCells(boardElem);
 
-            // Calculate grid dimensions
-            const rect = boardElem.getBoundingClientRect();
-            const cellSize = rect.width / 6;
-
             currentVehicles.forEach(v => {
                 const elem = document.createElement('div');
                 let colorClass = 'vehicle-car';
@@ -1034,7 +1075,6 @@
 
                 elem.className = `vehicle ${colorClass} ${selectedVehicleId === v.id ? 'selected' : ''}`;
                 
-                // Position and Size
                 const width = v.dir === 'h' ? (v.len * 100 / 6) : (100 / 6);
                 const height = v.dir === 'v' ? (v.len * 100 / 6) : (100 / 6);
                 const left = (v.col * 100 / 6);
@@ -1045,18 +1085,14 @@
                 elem.style.left = `calc(${left}% + 2px)`;
                 elem.style.top = `calc(${top}% + 2px)`;
 
-                // Label
                 elem.innerHTML = `<span class="text-sm font-black drop-shadow">${v.id}</span>`;
 
-                // Selection Event
                 elem.addEventListener('click', (e) => {
                     e.stopPropagation();
                     selectVehicle(v.id);
                 });
 
-                // Touch / Mouse Drag support
                 setupDrag(elem, v);
-
                 boardElem.appendChild(elem);
             });
 
@@ -1077,7 +1113,7 @@
             const iconNext = document.getElementById('icon-next');
 
             if (!selectedVehicleId) {
-                label.innerText = 'Toque em um veículo para mover';
+                label.innerText = 'Toque em um carro para selecionar';
                 btnPrev.disabled = true;
                 btnNext.disabled = true;
                 return;
@@ -1165,7 +1201,6 @@
 
         function canMoveVehicleTo(v, targetCol) {
             if (targetCol < 0 || targetCol + v.len > 6) return false;
-            // Check collisions with other vehicles
             for (let other of currentVehicles) {
                 if (other.id === v.id) continue;
                 for (let c = targetCol; c < targetCol + v.len; c++) {
@@ -1211,7 +1246,6 @@
 
         function checkVictory() {
             const redCar = currentVehicles.find(v => v.id === 'X');
-            // Win when red car reaches right end (col 4 on row 2, so head touches col 5 exit)
             if (redCar && redCar.row === 2 && redCar.col === 4) {
                 playSound('victory');
                 
@@ -1221,14 +1255,13 @@
                     setUnlockedLevelMax(lvl.id + 1);
                 }
 
-                // Calculate minimum mathematical moves via BFS solver
-                const solution = solvePuzzleBFS(OFFICIAL_LEVELS[currentLevelIndex] ? OFFICIAL_LEVELS[currentLevelIndex].vehicles : currentVehicles);
+                const solution = solvePuzzleBFS(isCustomLevelMode ? currentVehicles : OFFICIAL_LEVELS[currentLevelIndex].vehicles);
 
                 document.getElementById('victory-moves').innerText = moveCount;
                 document.getElementById('victory-min-moves').innerText = solution.solvable ? solution.moves : '--';
 
                 if (isCustomLevelMode) {
-                    document.getElementById('victory-subtitle').innerText = "Você resolveu com sucesso a sua Fase Personalizada!";
+                    document.getElementById('victory-subtitle').innerText = "Você resolveu a sua Fase Personalizada com sucesso!";
                     document.getElementById('btn-next-level').classList.add('hidden');
                 } else {
                     document.getElementById('victory-subtitle').innerText = `Você concluiu o ${lvl.title}!`;
@@ -1254,14 +1287,26 @@
 
         function getHint() {
             const res = solvePuzzleBFS(currentVehicles);
+            const box = document.getElementById('hint-content-box');
             if (res.solvable && res.path.length > 0) {
                 const firstMove = res.path[0];
                 selectVehicle(firstMove.vehicleId);
                 const v = currentVehicles.find(item => item.id === firstMove.vehicleId);
-                alert(`💡 Dica: Mova o veículo ${firstMove.vehicleId} na direção ${firstMove.delta > 0 ? (v.dir === 'h' ? 'Direita' : 'Baixo') : (v.dir === 'h' ? 'Esquerda' : 'Cima')}.`);
+                const dirText = firstMove.delta > 0 ? (v.dir === 'h' ? 'para a DIREITA' : 'para BAIXO') : (v.dir === 'h' ? 'para a ESQUERDA' : 'para CIMA');
+                
+                box.innerHTML = `
+                    <div class="font-bold text-yellow-400 text-sm mb-1"><i class="fa-solid fa-circle-arrow-right mr-1"></i> Recomendação:</div>
+                    <div>Mova o veículo <strong>${firstMove.vehicleId}</strong> ${dirText}.</div>
+                    <div class="text-[10px] text-slate-400 mt-2 border-t border-slate-800 pt-1.5">Faltam no mínimo <strong>${res.moves}</strong> movimentos para concluir esta posição.</div>
+                `;
             } else {
-                alert("Nenhuma dica disponível para a posição atual.");
+                box.innerHTML = `<div class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Nenhuma dica disponível ou o tabuleiro está bloqueado.</div>`;
             }
+            document.getElementById('modal-hint').classList.remove('hidden');
+        }
+
+        function closeHintModal() {
+            document.getElementById('modal-hint').classList.add('hidden');
         }
 
         function renderLevelMenu(filter) {
@@ -1271,10 +1316,9 @@
             const unlockedMax = getUnlockedLevelMax();
             let completedCount = 0;
 
-            // Update filter buttons visual
-            document.getElementById('filter-all').className = `px-4 py-2 rounded-xl text-xs font-bold transition ${filter==='all'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
-            document.getElementById('filter-iniciante').className = `px-4 py-2 rounded-xl text-xs font-bold transition ${filter==='Iniciante'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
-            document.getElementById('filter-intermediario').className = `px-4 py-2 rounded-xl text-xs font-bold transition ${filter==='Intermediário'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
+            document.getElementById('filter-all').className = `px-4 py-2 rounded-xl text-xs font-bold transition shadow ${filter==='all'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
+            document.getElementById('filter-iniciante').className = `px-4 py-2 rounded-xl text-xs font-bold transition shadow ${filter==='Iniciante'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
+            document.getElementById('filter-intermediario').className = `px-4 py-2 rounded-xl text-xs font-bold transition shadow ${filter==='Intermediário'?'bg-yellow-500 text-slate-950':'bg-slate-800 text-slate-300'}`;
 
             OFFICIAL_LEVELS.forEach((lvl, idx) => {
                 const isUnlocked = lvl.id <= unlockedMax;
@@ -1286,14 +1330,14 @@
                 const card = document.createElement('div');
                 card.className = `p-4 rounded-2xl border transition flex flex-col justify-between ${
                     isUnlocked 
-                    ? 'bg-slate-800/90 border-slate-700 hover:border-yellow-500/50 cursor-pointer shadow-lg hover:scale-105' 
-                    : 'bg-slate-900/60 border-slate-800/80 opacity-50 cursor-not-allowed'
+                    ? 'bg-slate-900/90 border-slate-800 hover:border-yellow-500/50 cursor-pointer shadow-lg hover:scale-105' 
+                    : 'bg-slate-950/60 border-slate-900 opacity-50 cursor-not-allowed'
                 }`;
 
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                            <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                                 lvl.category === 'Iniciante' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-sky-500/20 text-sky-400'
                             }">${lvl.category}</span>
                             ${isUnlocked 
@@ -1302,10 +1346,10 @@
                             }
                         </div>
                         <h3 class="text-base font-black text-white">${lvl.title}</h3>
-                        <p class="text-xs text-slate-400 mt-1">${lvl.vehicles.length} Veículos</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">${lvl.vehicles.length} Veículos</p>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                    <div class="mt-4 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs">
                         <span class="text-slate-400">Melhor:</span>
                         <span class="font-bold ${best ? 'text-yellow-400' : 'text-slate-500'}">${best ? best + ' mov' : '--'}</span>
                     </div>
@@ -1321,11 +1365,10 @@
             document.getElementById('completion-stats').innerText = `Progresso: ${completedCount} / ${OFFICIAL_LEVELS.length}`;
         }
 
-        // LEVEL EDITOR LOGIC
         function setEditorDir(dir) {
             editorDir = dir;
-            document.getElementById('editor-dir-h').className = `flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${dir==='h'?'bg-sky-600 text-white':'text-slate-400 hover:text-white'}`;
-            document.getElementById('editor-dir-v').className = `flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${dir==='v'?'bg-sky-600 text-white':'text-slate-400 hover:text-white'}`;
+            document.getElementById('editor-dir-h').className = `flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${dir==='h'?'bg-sky-600 text-white shadow':'text-slate-400 hover:text-white'}`;
+            document.getElementById('editor-dir-v').className = `flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${dir==='v'?'bg-sky-600 text-white shadow':'text-slate-400 hover:text-white'}`;
         }
 
         function renderPalette() {
@@ -1337,7 +1380,7 @@
                 const btn = document.createElement('button');
                 const isSelected = editorSelectedType === lettr;
                 btn.className = `p-1.5 rounded-lg font-black text-xs transition border ${
-                    isSelected ? 'bg-yellow-500 text-slate-950 border-white ring-2 ring-yellow-400' : 'bg-slate-900 text-yellow-400 border-slate-700 hover:border-yellow-500'
+                    isSelected ? 'bg-yellow-500 text-slate-950 border-white ring-2 ring-yellow-400 shadow' : 'bg-slate-950 text-yellow-400 border-slate-800 hover:border-yellow-500'
                 }`;
                 btn.innerText = lettr;
                 btn.onclick = () => selectEditorVehicleType(lettr);
@@ -1351,9 +1394,9 @@
                 const btn = document.createElement('button');
                 const isSelected = editorSelectedType === num;
                 btn.className = `p-1.5 rounded-lg font-black text-xs transition border ${
-                    isSelected ? 'bg-sky-500 text-white border-white ring-2 ring-sky-400' : 'bg-slate-900 text-sky-400 border-slate-700 hover:border-sky-500'
+                    isSelected ? 'bg-sky-500 text-white border-white ring-2 ring-sky-400 shadow' : 'bg-slate-950 text-sky-400 border-slate-800 hover:border-sky-500'
                 }`;
-                btn.innerText = `Caminhão ${num}`;
+                btn.innerText = `C. ${num}`;
                 btn.onclick = () => selectEditorVehicleType(num);
                 truckGrid.appendChild(btn);
             });
@@ -1361,9 +1404,9 @@
             // Highlight Red Car X
             const paletteX = document.getElementById('palette-X');
             if (editorSelectedType === 'X') {
-                paletteX.className = "palette-item p-2.5 rounded-xl bg-red-950/90 border-2 border-red-400 cursor-pointer flex items-center justify-between transition ring-2 ring-red-500";
+                paletteX.className = "palette-item p-2.5 rounded-xl bg-red-950/90 border-2 border-red-400 cursor-pointer flex items-center justify-between transition ring-2 ring-red-500 shadow";
             } else {
-                paletteX.className = "palette-item p-2.5 rounded-xl bg-slate-900 border-2 border-slate-700 hover:border-red-500 cursor-pointer flex items-center justify-between transition";
+                paletteX.className = "palette-item p-2.5 rounded-xl bg-slate-950 border-2 border-slate-800 hover:border-red-500 cursor-pointer flex items-center justify-between transition";
             }
         }
 
@@ -1382,10 +1425,9 @@
             const boardElem = document.getElementById('editor-board');
             createBoardGridCells(boardElem);
 
-            // Add click listeners to grid cells to place vehicles
             const cells = boardElem.querySelectorAll('.grid-cell');
             cells.forEach(cell => {
-                cell.classList.add('cursor-pointer', 'hover:bg-slate-700/50');
+                cell.classList.add('cursor-pointer', 'hover:bg-slate-800/60');
                 cell.onclick = () => {
                     const r = parseInt(cell.dataset.row, 10);
                     const c = parseInt(cell.dataset.col, 10);
@@ -1393,7 +1435,6 @@
                 };
             });
 
-            // Render existing vehicles on editor board
             editorVehicles.forEach(v => {
                 const elem = document.createElement('div');
                 let colorClass = 'vehicle-car';
@@ -1414,7 +1455,6 @@
 
                 elem.innerHTML = `<span class="text-sm font-black">${v.id}</span>`;
 
-                // Click to remove vehicle in editor
                 elem.onclick = (e) => {
                     e.stopPropagation();
                     editorVehicles = editorVehicles.filter(item => item.id !== v.id);
@@ -1429,14 +1469,11 @@
         function placeVehicleInEditor(r, c) {
             const len = ['1','2','3','4'].includes(editorSelectedType) ? 3 : 2;
 
-            // Bounds check
             if (editorDir === 'h' && c + len > 6) return;
             if (editorDir === 'v' && r + len > 6) return;
 
-            // Remove previous instance of this vehicle type if exists
             editorVehicles = editorVehicles.filter(v => v.id !== editorSelectedType);
 
-            // Check overlap with other vehicles
             const newVehicle = { id: editorSelectedType, dir: editorDir, row: r, col: c, len: len };
             for (let v of editorVehicles) {
                 if (checkOverlap(v, newVehicle)) {
@@ -1467,12 +1504,11 @@
         // BFS Solver Algorithm for Rush Hour
         function solvePuzzleBFS(vehicles) {
             const redCar = vehicles.find(v => v.id === 'X');
-            if (!redCar) return { solvable: false, error: 'O Carro Vermelho (X) não está no tabuleiro.' };
+            if (!redCar) return { solvable: false, error: 'O Carro Vermelho (X) não foi colocado no tabuleiro.' };
             if (redCar.dir !== 'h' || redCar.row !== 2) {
-                return { solvable: false, error: 'O Carro Vermelho (X) deve ser HORIZONTAL e estar na LINHA 3 (saída).' };
+                return { solvable: false, error: 'O Carro Vermelho (X) deve ser HORIZONTAL e estar na LINHA 3.' };
             }
 
-            // Serialize state for BFS visited set
             function serialize(state) {
                 return state.map(v => `${v.id}:${v.row},${v.col}`).sort().join('|');
             }
@@ -1505,18 +1541,16 @@
             const visited = new Set();
             visited.add(serialize(vehicles));
 
-            let maxExplored = 25000;
+            let maxExplored = 30000;
 
             while (queue.length > 0 && maxExplored-- > 0) {
                 const { state, moves, path } = queue.shift();
                 const currentRed = state.find(v => v.id === 'X');
 
-                // Win condition: Red car occupies col 4 (head touches exit at col 5)
                 if (currentRed.col === 4) {
                     return { solvable: true, moves, path };
                 }
 
-                // Explore all possible 1-step moves
                 for (let i = 0; i < state.length; i++) {
                     const v = state[i];
                     [-1, 1].forEach(delta => {
@@ -1540,7 +1574,7 @@
                 }
             }
 
-            return { solvable: false, error: 'Esta configuração não possui solução possível.' };
+            return { solvable: false, error: 'Esta configuração não tem solução possível.' };
         }
 
         function validateEditorLevel() {
@@ -1570,12 +1604,11 @@
                 return;
             }
 
-            // Run mathematical BFS solver
             const solution = solvePuzzleBFS(editorVehicles);
             if (solution.solvable) {
                 titleElem.className = "font-bold text-emerald-400 flex items-center gap-2";
                 titleElem.innerHTML = `<i class="fa-solid fa-circle-check"></i> Solúvel! Mínimo de ${solution.moves} movimentos.`;
-                descElem.innerText = 'A fase foi verificada matematicamente com sucesso e pode ser resolvida!';
+                descElem.innerText = 'A fase foi verificada matematicamente com sucesso! Teste-a jogando para liberar o link.';
                 btnTest.disabled = false;
                 btnShare.disabled = false;
                 customLevelSolution = solution;
@@ -1607,7 +1640,8 @@
 
         function generateShareLink() {
             if (!customLevelSolution) return;
-            const encoded = encodeURIComponent(btoa(JSON.stringify(editorVehicles)));
+            const jsonStr = JSON.stringify(editorVehicles);
+            const encoded = encodeURIComponent(btoa(jsonStr));
             const shareUrl = `${window.location.origin}${window.location.pathname}?fase=${encoded}`;
 
             document.getElementById('share-url-input').value = shareUrl;
@@ -1643,7 +1677,7 @@
                         return true;
                     }
                 } catch (e) {
-                    console.error("Error decoding shared level URL param:", e);
+                    console.error("Error decoding shared level URL parameter:", e);
                 }
             }
             return false;
@@ -1667,10 +1701,9 @@
             
             const loadedFromUrl = checkUrlParamsOnLoad();
             if (!loadedFromUrl) {
-                loadLevel(0); // Load Desafio 1 by default
+                loadLevel(0);
             }
 
-            // Keyboard Arrow Controls
             window.addEventListener('keydown', (e) => {
                 if (!selectedVehicleId) return;
                 const v = currentVehicles.find(item => item.id === selectedVehicleId);
