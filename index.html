@@ -1640,8 +1640,11 @@
 
         function generateShareLink() {
             if (!customLevelSolution) return;
+
             const jsonStr = JSON.stringify(editorVehicles);
-            const encoded = encodeURIComponent(btoa(jsonStr));
+            // encodeURIComponent é mantido para que +, / e = do Base64
+            // nunca sejam interpretados de forma incorreta na URL.
+            const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
             const shareUrl = `${window.location.origin}${window.location.pathname}?fase=${encoded}`;
 
             document.getElementById('share-url-input').value = shareUrl;
@@ -1662,25 +1665,96 @@
             document.getElementById('modal-share').classList.add('hidden');
         }
 
+        // Decodifica a fase compartilhada de forma robusta.
+        // URLSearchParams já faz a decodificação de %XX; por isso não
+        // devemos depender de um segundo decodeURIComponent.
+        function decodeSharedLevel(encoded) {
+            if (!encoded) throw new Error('Parâmetro "fase" vazio.');
+
+            // 1) Tenta o formato atual: Base64 normal dentro de encodeURIComponent.
+            const candidates = [encoded];
+
+            // 2) Compatibilidade com links que eventualmente tenham sido
+            //    codificados duas vezes.
+            try {
+                const decodedOnce = decodeURIComponent(encoded);
+                if (decodedOnce !== encoded) candidates.push(decodedOnce);
+            } catch (_) {}
+
+            for (const candidate of candidates) {
+                try {
+                    // Também aceita Base64URL, caso algum navegador/serviço tenha
+                    // trocado +/ por -_.
+                    let base64 = candidate.replace(/-/g, '+').replace(/_/g, '/');
+                    while (base64.length % 4) base64 += '=';
+
+                    // Primeiro tenta UTF-8 (formato usado pelo gerador atual).
+                    try {
+                        const binary = atob(base64);
+                        const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+                        const text = new TextDecoder('utf-8').decode(bytes);
+                        const parsed = JSON.parse(text);
+                        if (Array.isArray(parsed)) return parsed;
+                    } catch (_) {}
+
+                    // Compatibilidade com o link antigo, que usava btoa(JSON).
+                    const parsedLegacy = JSON.parse(atob(base64));
+                    if (Array.isArray(parsedLegacy)) return parsedLegacy;
+                } catch (_) {}
+            }
+
+            throw new Error('Não foi possível decodificar a fase compartilhada.');
+        }
+
+        function loadCustomLevelFromUrl(decoded) {
+            // Valida e calcula a solução ANTES de chamar testCustomLevel().
+            // Esse era o problema principal: customLevelSolution permanecia null
+            // quando a fase vinha diretamente pelo parâmetro ?fase=.
+            const solution = solvePuzzleBFS(decoded);
+
+            if (!solution.solvable) {
+                console.error('Fase personalizada inválida:', solution.error);
+                return false;
+            }
+
+            const cloned = JSON.parse(JSON.stringify(decoded));
+            window.customLevelData = cloned;
+            editorVehicles = JSON.parse(JSON.stringify(cloned));
+            customLevelSolution = solution;
+
+            isCustomLevelMode = true;
+            currentVehicles = JSON.parse(JSON.stringify(cloned));
+            selectedVehicleId = null;
+            moveCount = 0;
+
+            document.getElementById('level-badge').innerText = 'Fase Personalizada';
+            document.getElementById('level-title').innerText = 'Seu Estacionamento';
+            document.getElementById('move-counter').innerText = '0';
+            document.getElementById('best-moves').innerText = solution.moves + ' min';
+            document.getElementById('custom-level-banner').classList.remove('hidden');
+
+            switchTab('game');
+            return true;
+        }
+
         function checkUrlParamsOnLoad() {
             const urlParams = new URLSearchParams(window.location.search);
             const faseData = urlParams.get('fase');
-            if (faseData) {
-                try {
-                    const decoded = JSON.parse(atob(decodeURIComponent(faseData)));
-                    if (Array.isArray(decoded) && decoded.length > 0) {
-                        window.customLevelData = decoded;
-                        editorVehicles = JSON.parse(JSON.stringify(decoded));
-                        
-                        document.getElementById('custom-level-banner').classList.remove('hidden');
-                        testCustomLevel();
-                        return true;
-                    }
-                } catch (e) {
-                    console.error("Error decoding shared level URL parameter:", e);
+
+            if (!faseData) return false;
+
+            try {
+                const decoded = decodeSharedLevel(faseData);
+
+                if (!Array.isArray(decoded) || decoded.length === 0) {
+                    throw new Error('A fase compartilhada não contém veículos.');
                 }
+
+                return loadCustomLevelFromUrl(decoded);
+            } catch (e) {
+                console.error('Erro ao carregar fase personalizada pela URL:', e);
+                return false;
             }
-            return false;
         }
 
         function dismissBanner() {
